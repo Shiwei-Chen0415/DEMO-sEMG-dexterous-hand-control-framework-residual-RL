@@ -7,7 +7,7 @@ Master's Thesis Research
 
 This project develops a two-stage framework for adaptive robotic grasping: a causal temporal decoder maps multichannel surface electromyography (sEMG) to a compact grasp representation, and a residual reinforcement-learning controller introduces bounded task-level corrections around that human-derived command. Contact, interaction-force, robotic-hand, and object-motion feedback support grasp adaptation without replacing the human-provided control baseline.
 
-> This repository is a public research showcase for an ongoing Master's thesis. Source code, human-recorded datasets, model checkpoints, detailed experiment configurations, and complete numerical artifacts remain private.
+> This repository is a public research showcase for an Master's thesis. Source code, human-recorded datasets, model checkpoints, detailed experiment configurations, and complete numerical artifacts remain private.
 
 ## Key Contributions
 
