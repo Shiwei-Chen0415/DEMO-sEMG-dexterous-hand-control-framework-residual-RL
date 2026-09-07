@@ -1,167 +1,145 @@
 # Human-Intent-Preserving Residual Control for Robotic Grasping
 
-This project investigates how human muscle activity and recorded hand motion can be translated into adaptive robotic grasping while keeping the human-generated command at the center of the control loop. A causal intention decoder provides the reference behavior, and a bounded residual reinforcement-learning controller makes only local, contact-aware corrections during simulated manipulation with the Hannes robotic hand.
+**Shiwei Chen**  
+Master's Thesis Research
 
-> **Public research showcase.** This repository is intended as a visual and conceptual overview of an ongoing Master's thesis project. It presents selected descriptive figures without distributing participant-related recordings, raw or processed datasets, model checkpoints, internal experiment configurations, or detailed implementation code.
+**Research areas:** sEMG · Dexterous Manipulation · Residual Reinforcement Learning · Shared Autonomy · Human–Robot Interaction
 
-## Overview
+This project develops a two-stage framework for adaptive robotic grasping: a causal temporal decoder maps multichannel surface electromyography (sEMG) to a compact grasp representation, and a residual reinforcement-learning controller introduces bounded task-level corrections around that human-derived command. Contact, interaction-force, robotic-hand, and object-motion feedback support grasp adaptation without replacing the human-provided control baseline.
 
-Human intention signals are informative but imperfect as direct robot commands. Muscle activity varies over time and across recording sessions, while stable grasping also depends on contact geometry, object motion, and interaction forces that are not fully observable from the human input alone.
+> This repository is a public research showcase for an ongoing Master's thesis. Source code, human-recorded datasets, model checkpoints, detailed experiment configurations, and complete numerical artifacts remain private.
 
-### Wearable sEMG interface
+## Key Contributions
 
-Forearm muscle activity is acquired through a wearable multichannel surface-electromyography sensor. The non-invasive interface provides the human-side input to the intention-decoding stage while leaving the downstream controller responsible for adapting the decoded command to simulated hand-object interaction.
+- A two-stage sEMG-driven grasp-control framework combining causal human-intention decoding with residual reinforcement learning.
+- A human-command-preserving formulation in which the learned policy applies only bounded task-level corrections around the explicit human-derived baseline.
+- Contact-aware grasp adaptation informed by robotic-hand state, object motion, contact information, and interaction-force feedback.
+- Round-disjoint evaluation on complete held-out recorded trajectories, avoiding random temporal mixing of neighboring samples between training and evaluation.
 
-<p align="center">
-  <img src="Images_Github/SemgSensor.jpg" width="45%" alt="Wearable surface-electromyography sensor positioned on the forearm">
-</p>
+## Human sEMG Interface
 
-<p align="center"><sub>Wearable sEMG interface used to capture forearm muscle activity for intention decoding.</sub></p>
-
-The project addresses this mismatch with a two-stage design:
-
-1. A causal temporal model decodes multichannel surface electromyography (sEMG) into a compact hand-synergy reference.
-2. A residual controller observes the reference together with simulated hand, object, and contact feedback, then applies a bounded correction before the command is mapped to the robotic hand.
-
-The learned controller therefore augments the human-derived command instead of replacing it.
+Human forearm activity is measured with a wearable multichannel sEMG interface. These non-invasive muscle signals provide the input to the causal intention-decoding stage and establish the human-generated reference for downstream grasp control.
 
 <p align="center">
-  <img src="Images_Github/%E4%B8%BB%E6%A1%86%E6%9E%B6%E5%9B%BE%E6%96%B0.png" width="100%" alt="Two-stage framework for sEMG intention decoding and residual robotic grasp control">
+  <img src="Assets/SemgSensor.jpg" width="42%" alt="Wearable multichannel sEMG interface positioned on the forearm">
 </p>
 
-<p align="center"><sub>Complete project framework: causal intention decoding provides the baseline command, while residual reinforcement learning introduces a constrained task-level correction using simulated interaction feedback.</sub></p>
+<p align="center"><sub>Wearable forearm sEMG interface used to acquire muscle activity for intention decoding.</sub></p>
 
-## System Concept
+## System Architecture
 
-The central control flow is:
+The framework separates signal-level intention decoding from task-level adaptation. A causal temporal model produces the baseline grasp representation from sEMG, while the residual policy uses simulated hand–object feedback to compute a constrained correction before actuation of the Hannes robotic hand.
+
+<p align="center">
+  <img src="Assets/主框架图新.png" width="100%" alt="Two-stage architecture for causal sEMG intention decoding and residual robotic grasp control">
+</p>
+
+<p align="center"><sub>Two-stage architecture: human-derived grasp decoding followed by bounded, contact-aware residual control.</sub></p>
 
 ```text
-Human input -> causal intention decoding -> baseline hand command
-            -> bounded residual correction -> robotic-hand actuation
-            -> contact and motion feedback -> residual controller
+Human input
+→ causal intention decoding
+→ baseline grasp command
+→ bounded residual correction
+→ robotic-hand actuation
+→ contact and motion feedback
 ```
-
-The system is organized around four principles:
-
-- **Human-command preservation.** The decoded or recorded intention remains an explicit baseline throughout the control pipeline.
-- **Local adaptation.** The reinforcement-learning policy acts in residual space, limiting its authority to a correction around the baseline.
-- **Contact-aware control.** Hand state, object motion, contact state, and force feedback provide task-level information that is unavailable from sEMG alone.
-- **Regularized behavior.** The policy is encouraged to avoid unnecessary corrections, supporting a direct interpretation of the residual as the intervention introduced by the learned controller.
 
 ## Demonstrated Manipulation Task
 
-The simulated task covers a complete manipulation sequence rather than an isolated closing motion. The Hannes hand approaches the object, establishes a grasp, lifts and transfers it, places it at the target location, and releases it.
+The MuJoCo-based simulation evaluates a complete contact-rich manipulation sequence: approach, grasp establishment, lift, transfer, placement, and release. The task therefore tests sustained hand–object interaction across multiple phases rather than an isolated finger-closing action.
 
 <p align="center">
-  <img src="Images_Github/%E6%8A%93%E6%8F%A1%E4%BB%BB%E5%8A%A1%E5%85%A8%E7%A8%8B%E6%B5%81%E7%A8%8B%E5%9B%BE.png" width="100%" alt="Simulated approach, grasp, lift, transfer, placement, and release sequence">
+  <img src="Assets/抓握任务全程流程图.png" width="100%" alt="Complete simulated manipulation sequence from approach to release">
 </p>
 
-<p align="center"><sub>Representative task sequence in the MuJoCo environment: approach, grasp, lift, transfer, placement, and release.</sub></p>
+<p align="center"><sub>Complete simulated sequence with the Hannes robotic hand: approach, grasp, lift, transfer, placement, and release.</sub></p>
 
-## Complementary Recorded-Motion Study
+## Recorded-Motion Residual-Control Study
 
-A complementary experimental path evaluates residual grasp control using motion references recorded through a Unity/ROS workflow. The spatial hand trajectory is replayed as the human-provided motion reference, while the learned policy modifies only the grasp component. This separation makes it possible to study task-level adaptation without allowing the controller to rewrite the demonstrated spatial motion.
+A complementary Unity/ROS workflow provides recorded human motion references for simulation-based residual-control experiments. The spatial hand trajectory is preserved and replayed unchanged; the learned controller modifies only the grasp-related component in response to contact and dynamics feedback. This separation retains the demonstrated motion path while allowing adaptive grasp correction.
 
 <p align="center">
-  <img src="Images_Github2/Fig_Framework.png" width="100%" alt="Recorded-motion residual reinforcement-learning and evaluation framework">
+  <img src="Assets/Fig_Framework.png" width="100%" alt="Unity ROS recorded-motion and residual grasp-control framework">
 </p>
 
-<p align="center"><sub>Recorded-motion study: reference generation, unchanged spatial replay, residual grasp control, simulated contact dynamics, and round-level evaluation.</sub></p>
+<p align="center"><sub>Recorded-motion study separating unchanged spatial replay from adaptive residual correction of the grasp command.</sub></p>
 
-## Evaluation Design
+## Evaluation Protocol
 
-Evaluation is organized at the recording-round level. In leave-one-round-out evaluation, one complete recording is reserved for testing while the remaining recordings are used for training. Repeating this process across rounds keeps each test trajectory separate from the data used to fit its corresponding controller and avoids randomly mixing neighboring temporal samples between training and evaluation.
+Evaluation follows a leave-one-round-out, round-disjoint design. One complete recording round is held out for evaluation, the remaining rounds are used for training, and the process is repeated across rounds. Neighboring temporal samples from the same recording are therefore not randomly divided between training and test sets.
 
 <p align="center">
-  <img src="Images_Github2/Fig_loro_gesture.png" width="100%" alt="Robotic grasp task and leave-one-round-out evaluation protocol">
+  <img src="Assets/Fig_loro_gesture.png" width="100%" alt="Manipulation phases and leave-one-round-out evaluation protocol">
 </p>
 
-<p align="center"><sub>Left: representative phases of the simulated grasping task. Right: round-disjoint leave-one-round-out evaluation.</sub></p>
+<p align="center"><sub>Representative manipulation phases and the round-disjoint leave-one-round-out evaluation design.</sub></p>
 
 ## Representative Results
 
-The figures below provide a compact visual summary of the current experimental evidence. They are included to communicate the evaluation logic and the observed behavior of the system; the underlying recordings, per-round result files, and complete numerical tables are not part of this public showcase.
+The following figures provide selected representative evidence from the current research. Complete numerical artifacts, extended analyses, and unpublished per-round results remain part of the thesis and associated research outputs.
 
-### Intention-decoding evaluation
+### sEMG Intention-Decoding Evaluation
 
-The first-stage figure combines the round-level cross-validation allocation with held-out decoding measures for the causal temporal model and an MLP reference model. It visualizes variation across recording rounds together with descriptive aggregate summaries. The comparison should not be interpreted as a statistical-significance claim or as an isolated architecture-only ablation.
-
-<p align="center">
-  <img src="Images_Github/Cross-Validation%2B%E6%8C%87%E6%A0%87.png" width="100%" alt="Round-level cross-validation and held-out sEMG intention-decoding results">
-</p>
-
-<p align="center"><sub>Round-disjoint evaluation of the sEMG intention-decoding stage. Points show held-out folds, while the horizontal summaries provide a descriptive view across rounds.</sub></p>
-
-### Held-out residual-control comparison
-
-The second-stage comparison examines stable-hold time, unsafe-step time, residual-control magnitude, and contact-force balance across held-out rounds. The visualization shows how the learned residual controllers change task behavior relative to the recorded baseline, and how regularization affects the size of the intervention. Stable-hold time is reported as a time proportion and should not be read as an object-level grasp-success rate.
+Round-level held-out evaluation compares the causal temporal decoder with an MLP reference model. The figure reports decoding measures for each held-out fold and descriptive cross-round summaries, making variation across recording rounds visible without implying statistical significance.
 
 <p align="center">
-  <img src="Images_Github2/Fig_Overall.png" width="100%" alt="Held-out comparison of baseline, residual TD3, and behavior-regularized residual control">
+  <img src="Assets/Cross-Validation+指标.png" width="100%" alt="Round-level sEMG decoding evaluation for the causal temporal decoder and MLP reference model">
 </p>
 
-<p align="center"><sub>Descriptive held-out comparison of the baseline, residual TD3, and the proposed behavior-regularized residual controller.</sub></p>
+<p align="center"><sub>Round-disjoint sEMG intention-decoding evaluation with held-out-fold results and descriptive cross-round summaries.</sub></p>
 
-### Contact-force, friction, and spectral behavior
+### Residual Grasp-Control Evaluation
 
-Contact-level analysis complements the task measures by examining normal and tangential force, their ratio during valid contact, and the frequency content of force variation. The time-series panels illustrate one held-out round, while the aggregate panel summarizes changes across held-out rounds. These simulation measures characterize controller behavior; they are not presented as proof of physical slip boundaries, real-world safety, or statistical significance.
+The held-out comparison visualizes stable-hold time proportion, unsafe interaction time, residual-control magnitude, and tangential-to-normal interaction-force balance. Residual magnitude quantifies how strongly the autonomous controller departs from the human-derived baseline; stable-hold measurements describe temporal behavior rather than object-level task-success probability.
 
 <p align="center">
-  <img src="Images_Github2/Fig.Friction_Spectrum.png" width="100%" alt="Representative force, friction-ratio, and spectral analysis of residual grasp control">
+  <img src="Assets/Fig_Overall.png" width="100%" alt="Held-out comparison of the baseline residual TD3 and proposed residual controller">
 </p>
 
-<p align="center"><sub>Representative friction-ratio and stable-contact behavior, descriptive force changes across held-out rounds, and Welch spectral analysis.</sub></p>
+<p align="center"><sub>Descriptive held-out comparison of the recorded baseline, residual TD3, and the behavior-regularized residual controller.</sub></p>
 
-## Research Questions
+### Contact-Force and Spectral Analysis
 
-This work is structured around three questions:
+Complementary simulation-based analyses examine normal force, tangential force, and the tangential-to-normal force ratio during valid contact. Time-domain force behavior and Welch spectral content provide additional views of contact interaction and control smoothness across the evaluated controllers.
 
-- Can causal temporal learning recover a useful low-dimensional hand command from multichannel sEMG?
-- Can a bounded residual policy adapt that command using contact and dynamics feedback while preserving the underlying human intention?
-- Can the resulting control strategy be evaluated on complete held-out recording rounds rather than temporally mixed samples?
+<p align="center">
+  <img src="Assets/Fig.Friction_Spectrum.png" width="100%" alt="Contact-force friction-ratio and Welch spectral analysis">
+</p>
 
-The analysis considers grasp retention, unsafe contact behavior, force interaction, deviation from the human-derived baseline, and control smoothness. Selected figures are shown here at a descriptive level; exact values, full statistical context, and additional analyses remain part of the thesis and associated research outputs.
+<p align="center"><sub>Representative contact-force and friction-ratio behavior, cross-round force summaries, and Welch spectral analysis.</sub></p>
 
 ## Research Scope
 
-The project connects several areas of robotics and machine learning:
-
 | Area | Role in the project |
-|---|---|
-| Human intention decoding | Causal modeling of multichannel sEMG and recorded control references |
-| Dexterous manipulation | Low-dimensional coordination of the Hannes robotic hand |
-| Residual reinforcement learning | Task-aware corrections around a human-derived baseline |
-| Contact-rich simulation | Hand-object dynamics and force feedback in MuJoCo |
-| Human-centered control | Preserving operator intent while adding autonomous assistance |
-| Generalization assessment | Evaluation on complete recording rounds held out from training |
+| --- | --- |
+| Human intention decoding | Causal mapping from multichannel sEMG to a compact grasp representation |
+| Dexterous manipulation | Contact-rich grasping and object transfer with the Hannes robotic hand |
+| Residual reinforcement learning | Bounded task-level correction around the human-derived baseline |
+| Human-centered / shared control | Preservation of human intent while adding feedback-driven assistance |
+| Generalization evaluation | Assessment on complete recorded rounds held out from training |
 
-## Public Release Boundary
-
-This showcase is intentionally limited to material suitable for public academic review.
+## Public Release Scope
 
 **Included**
 
-- High-level research motivation and system description
-- Full architecture and task-sequence figures
-- Conceptual evaluation design
-- Selected descriptive result figures
-- A clear statement of the research scope and limitations
+- High-level system and experimental design
+- Selected task and evaluation figures
+- Representative descriptive results
 
-**Not publicly distributed**
+**Not publicly released**
 
-- Raw or processed human recordings and participant-related metadata
-- Private datasets or internal laboratory material
-- Training, evaluation, and preprocessing source code
-- Detailed hyperparameters, reward settings, and experiment-by-experiment procedures
-- Model checkpoints and large generated artifacts
-- Credentials, local paths, or private infrastructure information
-- Per-round result artifacts, complete numerical tables, and unpublished ablations
-- Third-party assets without redistribution permission
+- Human-recorded datasets and participant-related information
+- Training, preprocessing, and evaluation source code
+- Model checkpoints and internal experiment configurations
+- Complete numerical results and unpublished ablations
 
-## Status and Responsible Use
+## Research Status
 
-This is an ongoing Master's thesis project and a simulation-focused research prototype. It is not validated for clinical, safety-critical, or autonomous real-world deployment. The visual material demonstrates the research architecture and experimental design; it should not be interpreted as a claim of deployment readiness or as a substitute for the complete thesis methodology.
+This is ongoing Master's thesis research and the current public showcase is simulation-focused. The full methodology, implementation, statistical analysis, and supporting research artifacts remain part of the thesis and associated research outputs.
 
 ## Citation
 
-Formal citation information will be added after the associated thesis or publication is publicly available. Until then, please contact the author before reusing figures or describing unpublished aspects of the work.
+This repository presents ongoing Master's thesis research by **Shiwei Chen**.
+
+Formal thesis and publication citations will be added after the associated work becomes publicly available. Please contact the author before redistributing unpublished figures or research material.
