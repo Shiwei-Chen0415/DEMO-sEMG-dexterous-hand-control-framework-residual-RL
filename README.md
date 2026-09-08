@@ -16,7 +16,7 @@ This thesis investigates how a dexterous robotic hand can use human muscle activ
 The research progresses from six-dimensional synergy decoding and grasp optimization to adaptation of the residual-control principle to an existing one-dimensional PowerGrasp laboratory interface. This page follows that progression through eight selected figures.
 
 > Public research showcase for an ongoing Master's thesis. The repository presents the method and selected results; the complete implementation, datasets, and trained models remain private.
-> 
+
 ## My Contributions
 
 My work in this thesis includes the design and implementation of the two-stage control framework, the MLP/TCN decoding experiments, the residual TD3 and zero-residual regularization method, the MuJoCo task reconstruction and controller integration, and the quantitative evaluation and analysis. The one-dimensional sEMG-to-PowerGrasp regression model and the associated Unity/ROS interface were existing components of the laboratory platform and were integrated into the proposed residual-control study.
