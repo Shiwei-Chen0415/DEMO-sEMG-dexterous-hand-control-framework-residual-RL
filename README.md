@@ -7,17 +7,20 @@ Laboratory of Automation and Robotics (LAR)
 Supervised by Prof. Roberto Meattini  
 Expected graduation: October 2026
 
-**Research areas:** Robotics · Artificial Intelligence · Reinforcement Learning · Embedded Systems · Shared Autonomy
+**Research areas:** Robotics · Dexterous Manipulation · Artificial Intelligence · Reinforcement Learning · Shared Autonomy · Embedded Systems · Shared Autonomy
 
-## My Contributions
+## Project Overview
 
 This thesis investigates how a dexterous robotic hand can use human muscle activity as its primary control input while learning to improve grasp execution. The framework combines **supervised intention decoding** with **bounded, contact-aware residual reinforcement learning**. A zero-residual regularizer encourages the learned controller to improve the task with limited modification of the human-derived command.
 
 The research progresses from six-dimensional synergy decoding and grasp optimization to adaptation of the residual-control principle to an existing one-dimensional PowerGrasp laboratory interface. This page follows that progression through eight selected figures.
 
+> Public research showcase for an ongoing Master's thesis. The repository presents the method and selected results; the complete implementation, datasets, and trained models remain private.
+> 
+## My Contributions
+
 My work in this thesis includes the design and implementation of the two-stage control framework, the MLP/TCN decoding experiments, the residual TD3 and zero-residual regularization method, the MuJoCo task reconstruction and controller integration, and the quantitative evaluation and analysis. The one-dimensional sEMG-to-PowerGrasp regression model and the associated Unity/ROS interface were existing components of the laboratory platform and were integrated into the proposed residual-control study.
 
-> Public research showcase for an ongoing Master's thesis. The repository presents the method and selected results; the complete implementation, datasets, and trained models remain private.
 
 ## 1. Research Motivation and Human Input
 
