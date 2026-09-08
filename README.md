@@ -2,11 +2,20 @@
 
 **Shiwei Chen · Master's Thesis Research Demo**
 
-**Research areas:** sEMG · Robot Learning · Dexterous-Hand Control · Residual Reinforcement Learning · Shared Autonomy
+M.Sc. in Electronic Engineering, University of Bologna  
+Laboratory of Automation and Robotics (LAR)  
+Supervised by Prof. Roberto Meattini  
+Expected graduation: October 2026
+
+**Research areas:** Robotics · Artificial Intelligence · Reinforcement Learning · Embedded Systems · Shared Autonomy
+
+## My Contributions
 
 This thesis investigates how a dexterous robotic hand can use human muscle activity as its primary control input while learning to improve grasp execution. The framework combines **supervised intention decoding** with **bounded, contact-aware residual reinforcement learning**. A zero-residual regularizer encourages the learned controller to improve the task with limited modification of the human-derived command.
 
 The research progresses from six-dimensional synergy decoding and grasp optimization to adaptation of the residual-control principle to an existing one-dimensional PowerGrasp laboratory interface. This page follows that progression through eight selected figures.
+
+My work in this thesis includes the design and implementation of the two-stage control framework, the MLP/TCN decoding experiments, the residual TD3 and zero-residual regularization method, the MuJoCo task reconstruction and controller integration, and the quantitative evaluation and analysis. The one-dimensional sEMG-to-PowerGrasp regression model and the associated Unity/ROS interface were existing components of the laboratory platform and were integrated into the proposed residual-control study.
 
 > Public research showcase for an ongoing Master's thesis. The repository presents the method and selected results; the complete implementation, datasets, and trained models remain private.
 
@@ -56,7 +65,7 @@ The TCN achieves lower average RMSE and MAE, higher average R², and lower fold-
 
 ## 4. Stage 2 — Six-Dimensional Residual Grasp Optimization
 
-The second stage uses the TCN-generated PowerGrasp sequences in a MuJoCo manipulation task. The baseline executes the decoded synergy command directly. The proposed controller, denoted **TD3BCReg** in the thesis, adds a bounded six-dimensional residual and uses zero-residual regularization during training.
+The second stage uses the six-dimensional TCN-generated synergy sequences corresponding to the PowerGrasp trials. The baseline executes the decoded synergy command directly. The proposed controller, denoted **TD3BCReg** in the thesis, adds a bounded six-dimensional residual and uses zero-residual regularization during training.
 
 The task spans approach, grasp establishment, lifting, transfer, placement, and release, allowing evaluation across both sustained holding and contact transitions.
 
@@ -67,7 +76,7 @@ The task spans approach, grasp establishment, lifting, transfer, placement, and 
 
 The six-round results reported in Chapter 7 show longer stable holding, fewer unsafe-force events, lower excessive-force penalties, and slightly lower control cost under residual control. The corrections vary across synergy dimensions while retaining the main activation, holding, and release pattern of the TCN baseline.
 
-These task improvements accompany increased deviation from the RefHand reference and greater temporal variation. This illustrates the distinction between reproducing a reference signal and optimizing its physical execution. The six-dimensional residual experiment evaluates algorithmic feasibility on the available training rounds; the next experiment introduces held-out-round policy evaluation.
+These task improvements accompany increased deviation from the RefHand reference and greater temporal variation. This illustrates the distinction between reproducing a reference signal and optimizing its physical execution. The six-dimensional experiment evaluates algorithmic feasibility on the six available task rounds; it does not constitute held-out policy-generalization evaluation. Held-out-round evaluation is introduced in the subsequent one-dimensional study.
 
 ## 5. Adaptation to a Real-sEMG-Driven PowerGrasp Interface
 
