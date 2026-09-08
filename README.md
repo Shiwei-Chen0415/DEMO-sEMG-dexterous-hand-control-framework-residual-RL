@@ -7,7 +7,7 @@ Laboratory of Automation and Robotics (LAR)
 Supervised by Prof. Roberto Meattini  
 Expected graduation: October 2026
 
-**Research areas:** Robotics · Dexterous Manipulation · Artificial Intelligence · Reinforcement Learning · Shared Autonomy · Embedded Systems · Shared Autonomy
+**Research areas:** Robotics · Dexterous Manipulation · Artificial Intelligence · Reinforcement Learning · Shared Autonomy · Embedded Systems
 
 ## Project Overview
 
